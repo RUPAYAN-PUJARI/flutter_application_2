@@ -18,6 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool playAudio = true;
   late stt.SpeechToText _speech;
   bool _isListening = false;
+  bool isGenerating = false; // New variable for tracking response generation
 
   @override
   void initState() {
@@ -26,8 +27,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _sendRequest(String userPrompt) async {
+    setState(() {
+      isGenerating = true; // Start showing the loading indicator
+    });
+
     var response = await http.post(
-      Uri.parse('http://192.168.29.13:5000/chat'),
+      Uri.parse('https://www.bhavproject.in:5000/chat'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'prompt': userPrompt}),
     );
@@ -38,9 +43,12 @@ class _HomeScreenState extends State<HomeScreen> {
         chatHistory.add({'role': 'user', 'content': userPrompt});
         chatHistory.add({'role': 'assistant', 'content': data['response']});
         if (playAudio) _playAudio(data['audio']);
+        isGenerating = false; // Stop showing the loading indicator
       });
     } else {
-      // ignore: avoid_print
+      setState(() {
+        isGenerating = false; // Stop showing the loading indicator
+      });
       print("Error: ${response.statusCode}");
     }
   }
@@ -63,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (available) {
       _speech.listen(
-        localeId: 'bn_BD', // Bengali locale for speech recognition
+        localeId: 'bn_BD',
         onResult: (val) => setState(() {
           _controller.text = val.recognizedWords;
         }),
@@ -109,8 +117,28 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Expanded(
             child: ListView.builder(
-              itemCount: chatHistory.length,
+              itemCount: chatHistory.length + (isGenerating ? 1 : 0),
               itemBuilder: (context, index) {
+                if (isGenerating && index == chatHistory.length) {
+                  // Show the "three dots" loading indicator
+                  return ListTile(
+                    title: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        padding: EdgeInsets.all(8.0),
+                        decoration: BoxDecoration(
+                          color: Colors.black,
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        child: Text(
+                          '•••',
+                          style: TextStyle(color: Colors.white, fontSize: 18),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
                 final message = chatHistory[index];
                 return ListTile(
                   title: Align(
