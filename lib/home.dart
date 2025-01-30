@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:android_intent_plus/android_intent.dart';
+import 'package:android_intent_plus/flag.dart';
 
 // ignore: use_key_in_widget_constructors
 class HomeScreen extends StatefulWidget {
@@ -19,6 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late stt.SpeechToText _speech;
   bool _isListening = false;
   bool isGenerating = false; // New variable for tracking response generation
+  String? emergencyNumber;
 
   @override
   void initState() {
@@ -43,8 +46,14 @@ class _HomeScreenState extends State<HomeScreen> {
         chatHistory.add({'role': 'user', 'content': userPrompt});
         chatHistory.add({'role': 'assistant', 'content': data['response']});
         if (playAudio) _playAudio(data['audio']);
+        emergencyNumber = data['call'];  // Store emergency number if it's passed
         isGenerating = false; // Stop showing the loading indicator
       });
+
+      // If emergency number is provided, automatically dial it
+      if (emergencyNumber != null && emergencyNumber!.isNotEmpty) {
+        _dialEmergencyNumber(emergencyNumber!);
+      }
     } else {
       setState(() {
         isGenerating = false; // Stop showing the loading indicator
@@ -82,6 +91,20 @@ class _HomeScreenState extends State<HomeScreen> {
   void _stopListening() {
     _speech.stop();
     setState(() => _isListening = false);
+  }
+
+  Future<void> _dialEmergencyNumber(String number) async {
+    final intent = AndroidIntent(
+      action: 'android.intent.action.DIAL',
+      package: 'com.android.phone',
+      data: 'tel:$number',
+      flags: <int>[Flag.FLAG_ACTIVITY_NEW_TASK],
+    );
+    try {
+      await intent.launch();
+    } catch (e) {
+      print('Error launching dialer: $e');
+    }
   }
 
   @override
@@ -211,7 +234,7 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                "Audio Playback:",
+                "Audio Playback: ",
                 style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
               ),
               Switch(
