@@ -35,7 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     var response = await http.post(
-      Uri.parse('https://www.bhavproject.in:5000/chat'),
+      Uri.parse('https://bhav-xd21.onrender.com/chat'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'prompt': userPrompt}),
     );
