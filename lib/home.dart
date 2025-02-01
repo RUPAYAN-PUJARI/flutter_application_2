@@ -102,13 +102,27 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF2E2E2E),
+      backgroundColor: Color(0xFF121212), // Dark background
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 235, 121, 237),
+        backgroundColor: Color(0xFF1E88E5), // Blue
         centerTitle: true,
-        title: Text('BHAV - AI', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
+              child: Image.asset(
+                'assets/logo.png',
+                height: 30,
+                fit: BoxFit.contain,
+              ),
+            ),
+            SizedBox(width: 10),
+            Text('BHAV - AI', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ],
+        ),
         leading: IconButton(
-          icon: Icon(settingsExpanded ? Icons.close : Icons.settings, color: Colors.black),
+          icon: Icon(settingsExpanded ? Icons.close : Icons.settings, color: Colors.white),
           onPressed: () {
             setState(() {
               settingsExpanded = !settingsExpanded;
@@ -128,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       Text("Audio Playback:", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
                       Switch(
-                        activeColor: Color.fromARGB(255, 235, 121, 237),
+                        activeColor: Color(0xFF8E24AA), // Purple
                         value: playAudio,
                         onChanged: (bool value) {
                           setState(() {
@@ -139,7 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                   ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                    style: ElevatedButton.styleFrom(backgroundColor: Color(0xFFD32F2F)), // Red
                     onPressed: () {
                       setState(() {
                         chatHistory.clear();
@@ -159,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   return Center(
                     child: Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: CircularProgressIndicator(color: Colors.white),
+                      child: CircularProgressIndicator(color: Color(0xFF8E24AA)), // Purple
                     ),
                   );
                 }
@@ -170,7 +184,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Container(
                       padding: EdgeInsets.all(8.0),
                       decoration: BoxDecoration(
-                        color: message['role'] == 'user' ? Colors.white : Colors.black,
+                        color: message['role'] == 'user' ? Color(0xFF64B5F6) : Color(0xFF512DA8), // Light Blue for user, Dark Purple for assistant
                         borderRadius: BorderRadius.circular(8.0),
                       ),
                       child: Text(
@@ -208,7 +222,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 SizedBox(width: 8),
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent),
+                  style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF3949AB)), // Blue
                   onPressed: _isListening ? _stopListening : _startListening,
                   child: Icon(_isListening ? Icons.mic_off : Icons.mic, color: Colors.white),
                 ),
