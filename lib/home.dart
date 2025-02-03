@@ -21,6 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isGenerating = false;
   String? emergencyNumber;
   bool settingsExpanded = false;
+  AudioPlayer audioPlayer = AudioPlayer(); // Persistent AudioPlayer instance
 
   @override
   void initState() {
@@ -61,7 +62,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _playAudio(String base64Audio) async {
     Uint8List audioBytes = base64.decode(base64Audio);
-    AudioPlayer audioPlayer = AudioPlayer();
+    
+    // Stop any currently playing audio
+    await audioPlayer.stop();
+    
+    // Play new audio
     await audioPlayer.play(BytesSource(audioBytes));
   }
 
@@ -97,6 +102,12 @@ class _HomeScreenState extends State<HomeScreen> {
   void _stopListening() {
     _speech.stop();
     setState(() => _isListening = false);
+  }
+
+  @override
+  void dispose() {
+    audioPlayer.dispose(); // Ensure the player is properly disposed
+    super.dispose();
   }
 
   @override
